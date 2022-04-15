@@ -48,21 +48,21 @@ class GGH:
     def write_key(self, pub_filename, priv_filename):
 
         with open(pub_filename, "w") as f:
-            f.write('\n'.join(''.join(str(x) for x in row) for row in self.pubkey))
+            f.write('\n'.join(' '.join(str(x) for x in row) for row in self.pubkey))
         
         with open(priv_filename, "w") as f:
-            f.write('\n'.join(''.join(str(x) for x in row) for row in self.privkey))
+            f.write('\n'.join(' '.join(str(x) for x in row) for row in self.privkey))
     
     def load_public_key(self, filename):
 
-        data = open(filename, 'r').read().strip()
-        rows = [list(map(int, row)) for row in data.splitlines()]
+        data = open(filename, 'r').read()
+        rows = [list(int(re.sub(u"\u2212", "-", r)) for r in row.split()) for row in data.splitlines()]
 
         self.pubkey = Matrix(ZZ, rows)
 
     def load_private_key(self, filename):
-        data = open(filename, 'r').read().strip()
-        rows = [list(int(re.sub(u"\u2212", "-", row))) for row in data.splitlines()]
+        data = open(filename, 'r').read()
+        rows = [list(int(re.sub(u"\u2212", "-", r)) for r in row.split()) for row in data.splitlines()]
 
         self.privkey = Matrix(ZZ, rows)
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
         ggh = GGH(args.n)
         m = vector(ZZ, [ord(c) for c in padding(message, args.n)])
-        print(m)
+        #print(m)
         e = ggh.encrypt(m)
 
         #print(e)
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
             row = [int(re.sub(u"\u2212", "-", row)) for row in encrypted.splitlines()]
 
-        ggh = GGH(args.n, args.priv)
+        ggh = GGH(args.n, args.priv, args.pub)
 
         e = vector(ZZ, row)
         d = ggh.decrypt(e)
